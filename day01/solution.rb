@@ -1,8 +1,8 @@
 input = File.open("input.txt").map(&:to_i)
-# input = [100756]
+# input = File.open("bigboyinput").map(&:to_i)
 
-def calculate_fuel mass
-  mass.div(3) - 2
+def calculate_fuel value
+  value / 3 - 2
 end
 
 def recursive_fuel fuel, sum=0

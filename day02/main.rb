@@ -1,7 +1,4 @@
-program = File.open("input").read.split(",").map(&:to_i)
-
-# program = [1,9,10,3,2,3,11,0,99,30,40,50]
-# program = [1,1,1,4,99,5,6,0,99]
+input = $<.read.split(",").map(&:to_i)
 
 ADD = 1
 MUL = 2
@@ -32,14 +29,16 @@ def real_intcode_computer(program, noun, verb)
   end
 end
 
+# 3224742
 puts "Part 1"
-puts real_intcode_computer(program, 12, 2)
+puts real_intcode_computer(input, 12, 2)
 
 (0..99).each do |noun|
   (0..99).each do |verb|
-    ret = real_intcode_computer(program, noun, verb)
+    ret = real_intcode_computer(input, noun, verb)
     next if ret.nil?
     if ret == 19690720
+      # 7960
       puts "Part 2"
       puts 100 * noun + verb
       return

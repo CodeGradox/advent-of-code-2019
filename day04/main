@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+def check_valid(num)
+  digits = num.digits.each_cons(2)
+  digits.any? { |x, y| x == y } && digits.all? { |x, y| x >= y }
+end
+
+start = 372304
+finish = 847060
+
+# Solution should be 475
+passwords = (start..finish).select { |i| check_valid(i) }
+puts "Part 1"
+puts passwords.count
+
+puts "Part 2"
+puts passwords.count { |i| i.digits.slice_when(&:!=).any? { |digits| digits.size == 2 } }
+
+
+

@@ -12,12 +12,9 @@ LESS_THAN = 7
 EQUALS = 8
 HALT = 99
 
-def modes(m1=0, m2=0)
-  [m1, m2]
-end
-
 def get_params(program, idx)
-  m1, m2 = modes(*program[idx].digits[2, 2])
+  m1 = program[idx] / 100 % 10
+  m2 = program[idx] / 1000 % 10
   a, b, c = program[idx + 1, 3]
   a = program[a] if m1.zero?
   b = program[b] if m2.zero?
@@ -48,18 +45,14 @@ def intcode_computer(program, input)
       output << program[program[idx + 1]]
       idx += 2
     when JUMP_IF_TRUE
-      a, b = get_params(program, idx)
-      idx = a != 0 ? b : idx + 3
+      idx = apply_intcode(program, idx) { |a, b| a != 0 ? b : idx + 3 }
     when JUMP_IF_FALSE
-      a, b = get_params(program, idx)
-      idx = a.zero? ? b : idx + 3
+      idx = apply_intcode(program, idx) { |a, b| a.zero? ? b : idx + 3 }
     when LESS_THAN
-      a, b, c = get_params(program, idx)
-      program[c] = a < b ? 1 : 0
+      apply_intcode(program, idx) { |a, b| a < b ? 1 : 0 }
       idx += 4
     when EQUALS
-      a, b, c = get_params(program, idx)
-      program[c] = a == b ? 1 : 0
+      apply_intcode(program, idx) { |a, b| a == b ? 1 : 0 }
       idx += 4
     when HALT
       output << HALT
@@ -72,7 +65,7 @@ def intcode_computer(program, input)
 end
 
 puts "Part 1"
-puts intcode_computer(input, 1)[-2]
+puts intcode_computer(input, 1)&.at(-2)
 
 puts "Part 2"
-puts intcode_computer(input, 5)[-2]
+puts intcode_computer(input, 5)&.at(-2)

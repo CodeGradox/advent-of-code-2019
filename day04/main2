@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# Part 1: 475
+# Part 2: 297
+
+range = (372304..847060)
+
+def password?(num)
+  prev = num % 10
+  num /= 10
+  is_valid = false
+  while num > 0
+    cur = num % 10
+    return false if cur > prev
+    is_valid = true if cur == prev
+    prev = cur
+    num /= 10
+  end
+  is_valid
+end
+
+part1 = range.select { |n| password? n }
+puts part1.count
+
+part2 = part1.count { |n| n.digits.slice_when(&:!=).lazy.any? { |a| a.length == 2 } }
+puts part2

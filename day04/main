@@ -1,20 +1,14 @@
 #!/usr/bin/env ruby
+# Part 1: 475
+# Part 2: 297
 
-def check_valid(num)
-  digits = num.digits.each_cons(2)
-  digits.any? { |x, y| x == y } && digits.all? { |x, y| x >= y }
+def password? num
+  list = num.digits.each_cons(2)
+  list.all? { |x, y| x >= y} && list.any?{ |x, y| x == y }
 end
 
-start = 372304
-finish = 847060
+part1 = (372304..847060).select { |n| password? n }
+puts part1.count
 
-# Solution should be 475
-passwords = (start..finish).select { |i| check_valid(i) }
-puts "Part 1"
-puts passwords.count
-
-puts "Part 2"
-puts passwords.count { |i| i.digits.slice_when(&:!=).any? { |digits| digits.size == 2 } }
-
-
-
+part2 = part1.count { |n| n.digits.slice_when(&:!=).any? { |a| a.length == 2 } }
+puts part2

@@ -33,8 +33,6 @@ def intcode_computer(program, input)
     when 8 # Equals
       program[c] = a == b ? 1 : 0
       idx += 4
-    when 99 # Halt
-      return output
     else
       puts "Program failed"
       return nil

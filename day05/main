@@ -2,17 +2,12 @@
 
 input = $<.read.split(",").map(&:to_i)
 
-def get_params(program, idx)
+def apply_intcode(program, idx, &op)
   m1 = program[idx] / 100 % 10
   m2 = program[idx] / 1000 % 10
   a, b, c = program[idx + 1, 3]
   a = program[a] if m1.zero?
   b = program[b] if m2.zero?
-  [a, b, c] # c is always read as a value
-end
-
-def apply_intcode(program, idx, &op)
-  a, b, c = get_params(program, idx)
   program[c] = op.(a, b)
 end
 

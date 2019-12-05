@@ -47,7 +47,6 @@ def intcode_computer(program, input)
       apply(program, idx) { |a, b| a == b ? 1 : 0 }
       idx += 4
     when 99 # Halt
-      output << 99
       return output
     else
       puts "Program failed"
@@ -57,7 +56,7 @@ def intcode_computer(program, input)
 end
 
 puts "Part 1"
-puts intcode_computer(input, 1)&.at(-2)
+puts intcode_computer(input, 1)&.last
 
 puts "Part 2"
-puts intcode_computer(input, 5)&.at(-2)
+puts intcode_computer(input, 5)&.last

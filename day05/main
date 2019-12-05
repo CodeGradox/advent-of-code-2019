@@ -2,16 +2,6 @@
 
 input = $<.read.split(",").map(&:to_i)
 
-ADD = 1
-MUL = 2
-READ = 3
-WRITE = 4
-JUMP_IF_TRUE = 5
-JUMP_IF_FALSE = 6
-LESS_THAN = 7
-EQUALS = 8
-HALT = 99
-
 def get_params(program, idx)
   m1 = program[idx] / 100 % 10
   m2 = program[idx] / 1000 % 10
@@ -32,30 +22,30 @@ def intcode_computer(program, input)
   idx = 0
   loop do
     case program[idx] % 100
-    when ADD
+    when 1 # Add
       apply_intcode(program, idx, &:+)
       idx += 4
-    when MUL
+    when 2 # Multiply
       apply_intcode(program, idx, &:*)
       idx += 4
-    when READ
+    when 3 # Read
       program[program[idx + 1]] = input
       idx += 2
-    when WRITE
+    when 4 # Write
       output << program[program[idx + 1]]
       idx += 2
-    when JUMP_IF_TRUE
+    when 5 # Jump if true
       idx = apply_intcode(program, idx) { |a, b| a != 0 ? b : idx + 3 }
-    when JUMP_IF_FALSE
+    when 6 # Jump if false
       idx = apply_intcode(program, idx) { |a, b| a.zero? ? b : idx + 3 }
-    when LESS_THAN
+    when 7 # Less than
       apply_intcode(program, idx) { |a, b| a < b ? 1 : 0 }
       idx += 4
-    when EQUALS
+    when 8 # Equals
       apply_intcode(program, idx) { |a, b| a == b ? 1 : 0 }
       idx += 4
-    when HALT
-      output << HALT
+    when 99 # Halt
+      output << 99
       return output
     else
       puts "Program failed"

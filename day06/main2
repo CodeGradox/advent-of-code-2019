@@ -11,6 +11,7 @@ end
 orbits = input.reduce(Hash.new) { |acc, (a, b)| acc[b] = a; acc }
 you = find_com(orbits, "YOU")
 san = find_com(orbits, "SAN")
+common = (you & san).first
 
 puts "Part 2"
-puts (you & san).map { |p| you.index(p) + san.index(p) }.min
+puts you.index(common) + san.index(common)

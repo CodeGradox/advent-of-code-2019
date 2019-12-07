@@ -1,13 +1,8 @@
 #!/usr/bin/env ruby
-
-input = $<.read.lines.map(&:chomp).map { |line| line.split(")") }
-
 def traverse(map, planet, sum=0)
   map[planet].sum(sum) { |p| traverse(map, p, sum + 1) }
 end
 
-orbits = input.reduce(Hash.new { |h, k| h[k] = [] }) { |acc, (a, b)| acc[a] << b; acc }
-
-puts "Part 1"
+orbits = $<.read.lines.map(&:chomp).map { |line| line.split(")") }
+  .reduce(Hash.new { |h, k| h[k] = [] }) { |acc, (a, b)| acc[a] << b; acc }
 puts traverse(orbits, "COM")
-

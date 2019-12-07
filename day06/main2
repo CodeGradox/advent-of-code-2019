@@ -1,17 +1,12 @@
 #!/usr/bin/env ruby
-
-input = $<.read.lines.map(&:chomp).map { |line| line.split(")") }
-
 def find_com(map, planet)
   return [] if map[planet] == "COM"
   find_com(map, map[planet]).unshift(map[planet])
 end
 
-# Reverse input order from part 1.
-orbits = input.reduce(Hash.new) { |acc, (a, b)| acc[b] = a; acc }
+orbits = $<.read.lines.map(&:chomp).map { |line| line.split(")") }
+  .reduce(Hash.new) { |acc, (a, b)| acc[b] = a; acc }
 you = find_com(orbits, "YOU")
 san = find_com(orbits, "SAN")
 common = (you & san).first
-
-puts "Part 2"
 puts you.index(common) + san.index(common)

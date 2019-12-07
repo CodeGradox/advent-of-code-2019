@@ -1,81 +1,102 @@
 #!/usr/bin/env ruby
 
-def intcode_computer(program, *input)
-  program = program.clone
-  input = input.clone
-  output = []
-  idx = 0
-  while program[idx] != 99 # Halt
-    a, b, c = program[idx + 1, 3]
-    a = program[a] if program[idx].div(100).modulo(10).zero?
-    b = program[b] if program[idx].div(1000).modulo(10).zero?
-    case program[idx] % 100
-    when 1 # Add
-      program[c] = a + b
-      idx += 4
-    when 2 # Multiply
-      program[c] = a * b
-      idx += 4
-    when 3 # Read
-      program[program[idx + 1]] = input.shift
-      idx += 2
-    when 4 # Write
-      output << program[program[idx + 1]]
-      idx += 2
-    when 5 # Jump if true
-      idx = a != 0 ? b : idx + 3
-    when 6 # Jump if false
-      idx = a.zero? ? b : idx + 3
-    when 7 # Less than
-      program[c] = a < b ? 1 : 0
-      idx += 4
-    when 8 # Equals
-      program[c] = a == b ? 1 : 0
-      idx += 4
-    else
-      puts "Program failed"
-      return nil
-    end
+class Amplifier
+  def initialize(program, *input)
+    @program = program.clone
+    @next_amp = nil
+    @input = input.clone
+    @output = []
+    @failed = false
+    @idx = 0
   end
-  return output.last
+
+  def run
+    while !halted?
+      a, b, c = @program[@idx + 1, 3]
+      a = @program[a] if @program[@idx].div(100).modulo(10).zero?
+      b = @program[b] if @program[@idx].div(1000).modulo(10).zero?
+      case intcode
+      when 1 # add
+        @program[c] = a + b
+        @idx += 4
+      when 2 # multiply
+        @program[c] = a * b
+        @idx += 4
+      when 3 # read
+        @program[@program[@idx + 1]] = @input.shift
+        @idx += 2
+      when 4 # write
+        @output << @program[@program[@idx + 1]]
+        @idx += 2
+        # Send output to the next amplifier.
+        @next_amp&.append_input(@output.last)
+        @next_amp&.run
+        return @next_amp.last_output if @next_amp&.halted?
+      when 5 # jump if true
+        @idx = a != 0 ? b : @idx + 3
+      when 6 # jump if false
+        @idx = a.zero? ? b : @idx + 3
+      when 7 # less than
+        @program[c] = a < b ? 1 : 0
+        @idx += 4
+      when 8 # equals
+        @program[c] = a == b ? 1 : 0
+        @idx += 4
+      else
+        puts "program failed"
+        @failed = true
+        return nil
+      end
+    end
+    return @output.last
+  end
+
+  def append_input(val)
+    @input << val
+  end
+
+  def chain(amp)
+    @next_amp = amp
+  end
+
+  def last_output
+    @output.last
+  end
+
+  def halted?
+    intcode == 99 || failed?
+  end
+
+  def failed?
+    @failed
+  end
+
+  private
+
+  def intcode
+    @program[@idx] % 100
+  end
 end
 
 def calculate_thrust(input, phases)
-  signal = 0
-  phases.each do |phase|
-    signal = intcode_computer(input, phase, signal)
-  end
-  signal
+  phases.reduce(0) { |signal, phase| Amplifier.new(input, phase, signal).run }
 end
 
-def test1
-  input = [3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0]
-  phases = [4,3,2,1,0]
-  puts calculate_thrust(input, phases)
-end
-
-def test2
-  input = [3,23,3,24,1002,24,10,24,1002,23,-1,23,101,5,23,23,1,24,23,23,4,23,99,0,0]
-  phases = [0,1,2,3,4]
-  puts calculate_thrust(input, phases)
-end
-
-def test3
-  input = [3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0]
-  phases = [1,0,4,3,2]
-  puts calculate_thrust(input, phases)
+# Create amplifiers and chain them so they create a feedback loop
+def calculate_feedback_loop(input, phases)
+  a, b, c, d, e = phases.map { |phase| Amplifier.new(input, phase) }
+  a.chain(b).chain(c).chain(d).chain(e).chain(a)
+  a.append_input(0)
+  a.run
+  e.last_output
 end
 
 def main
   input = $<.read.split(",").map(&:to_i)
-  outputs = []
-  5.times.to_a.permutation.each do |phases|
-    outputs << calculate_thrust(input, phases)
-  end
-  puts outputs.max
+  puts "Part 1"
+  puts 5.times.to_a.permutation.map { |phases| calculate_thrust(input, phases) }.max
+  puts "Part 2"
+  puts (5..9).to_a.permutation.map { |phases| calculate_feedback_loop(input, phases) }.max
 end
 
-# test1
-# test2
-# test3
 main

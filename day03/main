@@ -3,31 +3,31 @@
 lines = $<.read.lines.take(2).map{ |line| line.chomp.split(",") }
 
 a, b = lines.map do |directions|
-  x, y = 0, 0
-  out = []
+  pos, x, y, out = 0, 0, 0, {}
   directions.each do |dir|
     steps = dir[1..].to_i
     case dir[0]
     when "R"
-      out += steps.times.map { |i| [x + i, y] }
+      steps.times.each { |i| out[[x + i, y]] ||= pos + i + 1 }
       x += steps
     when "L"
-      out += steps.times.map { |i| [x - i, y] }
+      steps.times.each { |i| out[[x - i, y]] ||= pos + i + 1 }
       x -= steps
     when "U"
-      out += steps.times.map { |i| [x, y + i] }
+      steps.times.each { |i| out[[x, y + i]] ||= pos + i + 1 }
       y += steps
     when "D"
-      out += steps.times.map { |i| [x, y - i] }
+      steps.times.each { |i| out[[x, y - i]] ||= pos + i + 1 }
       y -= steps
     end
+    pos += steps
   end
-  out[1..] # Skip (0,0)
+  out.delete([0,0])
+  out
 end
 
-intersections = (a & b)
+intersections = (a.keys & b.keys)
 puts "Part 1"
 puts intersections.map { |point| point[0].abs + point[1].abs }.min
 puts "Part 2"
-# Need to add 2 because we ignore the first step: (0,0)
-puts intersections.map { |i| a.index(i) + b.index(i) + 2 }.min
+puts intersections.map { |i| a[i] + b[i] }.min

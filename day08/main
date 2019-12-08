@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+H, W = 6, 25
+layers = $<.read.chomp.split("").map(&:to_i).each_slice(H * W).to_a
+
+puts "Part 1"
+smol = layers.map { |layer| layer.group_by(&:itself).transform_values(&:count) }.min { |a, b| a[0] <=> b[0] }
+smol.default = 0 # In case a row does now have 1's or 2's
+puts smol[1] * smol[2]
+
+puts "Part 2"
+head, *rest = layers
+img = rest.reduce(head) { |acc, layer| acc.zip(layer).map {|a, b| a == 2 ? b : a } }
+
+img.each_slice(W).to_a.each do |line|
+  puts line.map { |i| i == 1 ? "█" : " " }.join
+end

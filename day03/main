@@ -2,15 +2,6 @@
 
 lines = $<.read.lines.map{ |line| line.chomp.split(",") }
 
-# left = %w(R8 U5 L5 D3)
-# right = %w(U7 R6 D4 L4)
-
-# left = %w(R75 D30 R83 U83 L12 D49 R71 U7 L72)
-# right = %w(U62 R66 U55 R34 D71 R55 D58 R83)
-
-# left = %w(R98 U47 R26 D63 R33 U87 L62 D20 R33 U53 R51)
-# right = %w(U98 R91 D20 R16 D67 R40 U7 R15 U6 R7)
-
 a, b = lines.map do |directions|
   x, y = 0, 0
   out = []
@@ -31,8 +22,12 @@ a, b = lines.map do |directions|
       y -= steps
     end
   end
-  out[1..] # Skip [0,0]
+  out[1..] # Skip (0,0)
 end
 
-puts (a & b).map { |point| point[0].abs+ point[1].abs }.min
-
+intersections = (a & b)
+puts "Part 1"
+puts intersections.map { |point| point[0].abs + point[1].abs }.min
+puts "Part 2"
+# Need to add 2 because we ignore the first step: (0,0)
+puts intersections.map { |i| a.index(i) + b.index(i) }.min + 2

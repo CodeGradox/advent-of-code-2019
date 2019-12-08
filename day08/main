@@ -9,7 +9,7 @@ puts smol.count { |x| x == 1 } * smol.count { |x| x == 2 }
 
 puts "Part 2"
 head, *rest = layers
-img = rest.reduce(head) { |acc, layer| acc.zip(layer).map {|a, b| a == 2 ? b : a } }
+img = rest.reduce(head) { |acc, layer| acc.zip(layer).map { |a, b| a == 2 ? b : a } }
 
 img.each_slice(W).to_a.each do |line|
   puts line.map { |i| i == 1 ? "█" : " " }.join

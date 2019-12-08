@@ -30,4 +30,4 @@ puts "Part 1"
 puts intersections.map { |point| point[0].abs + point[1].abs }.min
 puts "Part 2"
 # Need to add 2 because we ignore the first step: (0,0)
-puts intersections.map { |i| a.index(i) + b.index(i) }.min + 2
+puts intersections.map { |i| a.index(i) + b.index(i) + 2 }.min

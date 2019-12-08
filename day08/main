@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 H, W = 6, 25
-layers = $<.read.chomp.split("").map(&:to_i).each_slice(H * W).to_a
+layers = $<.read.chomp.chars.map(&:to_i).each_slice(H * W).to_a
 
 puts "Part 1"
 smol = layers.map { |layer| layer.group_by(&:itself).transform_values(&:count) }.min { |a, b| a[0] <=> b[0] }

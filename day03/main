@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-lines = $<.read.lines.map{ |line| line.chomp.split(",") }
+lines = $<.read.lines.take(2).map{ |line| line.chomp.split(",") }
 
 a, b = lines.map do |directions|
   x, y = 0, 0

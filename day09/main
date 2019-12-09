@@ -1,0 +1,113 @@
+#!/usr/bin/env ruby
+
+class Amplifier
+  attr_reader :output, :program
+  def initialize(program, *input, halt_on_write: false)
+      @program = program.clone + [0]*1000
+    @input = input.clone
+    @halt_on_write = halt_on_write
+    @output = []
+    @failed = false
+    @idx = 0
+    @rel = 0
+  end
+
+  def run(*input)
+    @input += input if input.any?
+    while !halted?
+      av, bv, cv = @program[@idx + 1, 3]
+      a = case mod1
+      when 0 then @program[av]
+      when 2 then @program[av + @rel]
+      else            av
+      end
+      b = case mod2
+      when 0 then @program[bv]
+      when 2 then @program[bv + @rel]
+      else        bv
+      end
+      c = case mod3
+      when 2 then cv + @rel
+      else        cv
+      end
+
+      case intcode
+      when 1 # add
+        @program[c] = a + b
+        @idx += 4
+      when 2 # multiply
+        @program[c] = a * b
+        @idx += 4
+      when 3 # read
+        @program[av + (mod1 == 2 ? @rel : 0)] = @input.shift
+        @idx += 2
+      when 4 # write
+        @output << @program[av + (mod1 == 2 ? @rel : 0)]
+        @idx += 2
+        return @output.last if @halt_on_write
+      when 5 # jump if true
+        @idx = a != 0 ? b : @idx + 3
+      when 6 # jump if false
+        @idx = a.zero? ? b : @idx + 3
+      when 7 # less than
+        @program[c] = a < b ? 1 : 0
+        @idx += 4
+      when 8 # equals
+        @program[c] = a == b ? 1 : 0
+        @idx += 4
+      when 9 # adjust relative base
+        @rel += a
+        @idx += 2
+      else
+        puts "program failed"
+        @failed = true
+        return nil
+      end
+    end
+    return @output.last
+  end
+
+  def last_output
+    @output.last
+  end
+
+  def halted?
+    intcode == 99 || failed?
+  end
+
+  def failed?
+    @failed
+  end
+
+  private
+
+  def intcode
+    @program[@idx] % 100
+  end
+
+  def mod1
+    @program[@idx].div(100).modulo(10)
+  end
+
+  def mod2
+    @program[@idx].div(1000).modulo(10)
+  end
+
+  def mod3
+    @program[@idx].div(10000).modulo(10)
+  end
+end
+
+def main
+  input = $<.read.split(",").map(&:to_i)
+  amp = Amplifier.new(input, 1)
+  amp.run
+  puts "Part 1"
+  puts amp.last_output
+  puts "Part 2"
+  amp = Amplifier.new(input, 2)
+  amp.run
+  puts amp.last_output
+end
+
+main

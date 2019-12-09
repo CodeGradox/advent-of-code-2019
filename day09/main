@@ -2,10 +2,12 @@
 
 class Amplifier
   attr_reader :output, :program
-  def initialize(program, *input, halt_on_write: false)
+  attr_accessor :debug
+
+  def initialize(program, *input, debug: false)
     @program = program.clone + [0]*1000
     @input = input.clone
-    @halt_on_write = halt_on_write
+    @debug = debug
     @output = []
     @failed = false
     @idx = 0
@@ -28,7 +30,7 @@ class Amplifier
       when 4 # write
         @output << ptr(1)
         @idx += 2
-        return @output.last if @halt_on_write
+        return @output.last if !debug
       when 5 # jump if true
         @idx = ptr(1) != 0 ? ptr(2) : @idx + 3
       when 6 # jump if false
@@ -48,6 +50,7 @@ class Amplifier
         return nil
       end
     end
+    return @output.inspect if debug
   end
 
   def last_output
@@ -94,14 +97,10 @@ end
 
 def main
   input = $<.read.split(",").map(&:to_i)
-  amp = Amplifier.new(input, 1)
-  amp.run
   puts "Part 1"
-  puts amp.last_output
+  puts Amplifier.new(input, 1).run
   puts "Part 2"
-  amp = Amplifier.new(input, 2)
-  amp.run
-  puts amp.last_output
+  puts Amplifier.new(input, 2).run
 end
 
 main

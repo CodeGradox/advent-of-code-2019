@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require "set"
+
+out, y = [], 0
+$<.each_line do |line|
+  line.chars.each_with_index do |ch, x|
+    out << [x, y] if ch == ?#
+  end
+  y += 1
+end
+
+# p out
+
+list = Hash.new { |h, k| h[k] = Set.new }
+out.each do |p1|
+  out.each do |p2|
+    next if p1 == p2
+    slope = (p2[1] - p1[1]).fdiv((p2[0] - p1[0]))
+    slope = Math.atan slope
+    if p1[0] > p2[0]
+      slope = slope * 180 / Math::PI
+    else
+      # slope = slope * 360 / Math::PI
+    end
+    slope = slope.angle if slope.zero?
+    list[p1] << slope
+  end
+end
+
+p list.max_by { |h, v| v.size }[1].size
+p list.max_by { |h, v| v.size }[0]

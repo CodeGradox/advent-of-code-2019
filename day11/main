@@ -7,27 +7,16 @@ input = $<.read.chomp.split(",").map(&:to_i)
 
 def paint_panel(input, start_on_white = false)
   im = IntcodeMachine.new(input)
-  grid = Set.new
-  white = Set.new
+  least_once = Set.new
   dir, x, y = 0, 50, 50
-  image = Array.new(100) { Array.new(100, " ") }
-  white << [x, y] if start_on_white
+  image = Array.new(100) { Array.new(100, 0) }
+  image[x][y] = 1 if start_on_white
 
   while !im.halted?
-    color = (white === [x, y] ? 1 : 0)
-    paint = im.run(color)
+    paint = im.run(image[y][x])
     next if paint.nil?
-    if paint.zero?
-      image[y][x] = " "
-    else
-      image[y][x] = "#"
-    end
-    grid << [x, y]
-    if paint.zero? && white === [x, y]
-      white.delete([x, y])
-    else
-      white << [x, y]
-    end
+    least_once << [x, y]
+    image[y][x] = paint
     if im.run.zero? # Turn left (0) or right (1)
       dir = (dir - 1) % 4
     else
@@ -42,15 +31,12 @@ def paint_panel(input, start_on_white = false)
     end
   end
 
-  p grid.size
-  File.open("hull-image", "w") do |file|
-    image.reverse.each do |a|
-      file.write a.join + "\n"
-    end
-  end
+  { unique_paint_count: least_once.size, image: image }
 end
 
 puts "Part 1"
-paint_panel(input)
+puts paint_panel(input)[:unique_paint_count]
 puts "Part 2"
-paint_panel(input, true)
+paint_panel(input, true)[:image].reverse.each do |a|
+  puts a.map { |i| i.zero? ? " " : "#" }.join.inspect
+end

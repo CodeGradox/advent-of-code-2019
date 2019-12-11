@@ -20,5 +20,6 @@ out.each do |p1|
   end
 end
 
-p list.max_by { |h, v| v.size }[1].size
-p list.max_by { |h, v| v.size }[0]
+point = list.max_by { |h, v| v.size }
+p point[1].size
+p point[0]

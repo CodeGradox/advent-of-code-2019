@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+require_relative "../common/intcode_machine"
+require "set"
+
+input = $<.read.chomp.split(",").map(&:to_i)
+
+def paint_panel(input, start_on_white = false)
+  im = IntcodeMachine.new(input)
+  grid = Set.new
+  white = Set.new
+  dir, x, y = 0, 50, 50
+  image = Array.new(100) { Array.new(100, " ") }
+  white << [x, y] if start_on_white
+
+  while !im.halted?
+    color = (white === [x, y] ? 1 : 0)
+    paint = im.run(color)
+    next if paint.nil?
+    if paint.zero?
+      image[y][x] = " "
+    else
+      image[y][x] = "#"
+    end
+    grid << [x, y]
+    if paint.zero? && white === [x, y]
+      white.delete([x, y])
+    else
+      white << [x, y]
+    end
+    if im.run.zero? # Turn left (0) or right (1)
+      dir = (dir - 1) % 4
+    else
+      dir = (dir + 1) % 4
+    end
+
+    case dir
+    when 0 then y += 1
+    when 1 then x += 1
+    when 2 then y -= 1
+    when 3 then x -= 1
+    end
+  end
+
+  p grid.size
+  File.open("hull-image", "w") do |file|
+    image.reverse.each do |a|
+      file.write a.join + "\n"
+    end
+  end
+end
+
+puts "Part 1"
+paint_panel(input)
+puts "Part 2"
+paint_panel(input, true)

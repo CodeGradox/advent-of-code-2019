@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+require "set"
+
+def calc(arr)
+  arr.size.times.map do |i|
+    head, *rest = arr.rotate(i)
+    rest.each_with_object(head).map(&:<=>).sum
+  end
+end
+
+input = $<.readlines.map do |line|
+  line.scan(/-?\d+/).map(&:to_i)
+end
+
+input = input.transpose
+velocity = Array.new(3) { [0]*4 }
+seen_positions = Set.new
+seen_velocities = Set.new
+steps = 0
+loop do
+  input.each_with_index do |arr, i|
+    gravity = calc(arr)
+    input[i] = arr.zip(gravity).map(&:sum).zip(velocity[i]).map(&:sum)
+    velocity[i] = velocity[i].zip(gravity).map(&:sum)
+  end
+  if seen_positions === input && seen_velocities === velocity
+    puts steps
+    return steps
+  end
+  seen_positions << input.clone
+  seen_velocities << velocity.clone
+  steps += 1
+  break if steps > 4_686_774_924
+end
+
+p input
+p velocity
+

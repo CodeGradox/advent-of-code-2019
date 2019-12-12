@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+def calc(arr)
+  arr.size.times.map do |i|
+    head, *rest = arr.rotate(i)
+    rest.each_with_object(head).map(&:<=>).sum
+  end
+end
+
+input = $<.readlines.map do |line|
+  line.scan(/-?\d+/).map(&:to_i)
+end
+
+input = input.transpose
+
+velocity = Array.new(3) { [0]*4 }
+
+1000.times do
+  input.each_with_index do |arr, i|
+    gravity = calc(arr)
+    input[i] = arr.zip(gravity).map(&:sum).zip(velocity[i]).map(&:sum)
+    velocity[i] = velocity[i].zip(gravity).map(&:sum)
+  end
+end
+
+p input
+p velocity
+puts "----"
+a = input.transpose.map { |xyz| xyz.map(&:abs).sum }
+b = velocity.transpose.map { |xyz| xyz.map(&:abs).sum }
+p a, b, a.zip(b).map { |pot, kin| pot * kin }.sum

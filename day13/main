@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require_relative "../common/intcode_machine"
+
+input = $<.read.chomp.split(",").map(&:to_i)
+
+out = Hash.new
+machine = IntcodeMachine.new(input)
+
+while !machine.halted? do
+  x = machine.run
+  y = machine.run
+  tile = machine.run
+  out.store([x, y], tile) if !tile.nil?
+end
+
+puts "Part 1"
+p out.values.count(2)
